@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 	<link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
-
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
     body{
     background:#ddd;
@@ -289,11 +289,13 @@ function downloadPhoto() {
     // Exibe o ícone de sucesso após o download
     document.getElementById("successIcon").style.display = "block";
 
-    // Esconde o ícone de sucesso após 1 segundo
+    // Esconde o ícone de sucesso após 1 segundo e volta para a câmera
     setTimeout(() => {
         document.getElementById("successIcon").style.display = "none";
+        newPhoto(); // Volta automaticamente para a câmera
     }, 1000);
 }
+
 
 
 
