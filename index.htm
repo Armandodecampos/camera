@@ -276,9 +276,13 @@ function newPhoto() {
 }
 
 function switchCamera() {
-    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    facingMode = (facingMode === 'user') ? 'environment' : 'user';
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
     startCamera();
 }
+
 
 window.onload = function() {
     document.getElementById('downloadButton').style.display = 'none';
