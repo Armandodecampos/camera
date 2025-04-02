@@ -222,68 +222,44 @@
     }
 
     function takePhoto() {
-        document.getElementById("loadingIcon").style.display = "block";
-        if (!mediaTrack) {
-            console.error("Câmera não iniciada.");
-            document.getElementById("loadingIcon").style.display = "none";
-            return;
-        }
+    document.getElementById("loadingIcon").style.display = "block";
 
-        let imageCapture = new ImageCapture(mediaTrack);
-
-        imageCapture.takePhoto()
-            .then(blob => {
-                let imgURL = URL.createObjectURL(blob);
-                let img = new Image();
-                img.onload = function () {
-                    let originalWidth = img.width;
-                    let originalHeight = img.height;
-
-                    // Desenha o Blob no canvas com as dimensões originais
-                    canvas.width = originalWidth;
-                    canvas.height = originalHeight;
-                    context.drawImage(img, 0, 0, originalWidth, originalHeight);
-
-                    originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    if (isGrayscale) applyGrayscale();
-
-                    URL.revokeObjectURL(imgURL);
-                    document.getElementById("loadingIcon").style.display = "none";
-                };
-                img.src = imgURL;
-
-                canvas.style.display = 'block';
-                video.style.display = 'none';
-                document.getElementById('downloadButton').style.display = 'inline-block';
-                document.getElementById('newPhotoButton').style.display = 'inline-block';
-                document.getElementById('captureButton').style.display = 'none';
-                document.getElementById('cameraSwitchButton').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Erro ao capturar foto: ', error);
-                document.getElementById("loadingIcon").style.display = "none";
-            });
+    if (!video.videoWidth || !video.videoHeight) {
+        console.error("Câmera não iniciada.");
+        document.getElementById("loadingIcon").style.display = "none";
+        return;
     }
 
-    function toggleFilter() {
-        isGrayscale = !isGrayscale;
+    // Pegando dimensões do vídeo
+    let videoWidth = video.videoWidth;
+    let videoHeight = video.videoHeight;
 
-        if (isGrayscale) {
-            video.style.filter = 'grayscale(100%)';
-        } else {
-            video.style.filter = 'none';
-        }
+    // Definir proporção correta: altura 100% e largura 85.11% da altura
+    let aspectRatio = videoHeight / (videoHeight * 0.8511);
+    let cropWidth = videoHeight * 0.8511; // 85.11% da altura
+    let cropHeight = videoHeight; // 100% da altura
 
-        if (canvas.style.display === 'block') {
-            if (isGrayscale) {
-                applyGrayscale();
-            } else {
-                if (originalImageData) {
-                    context.putImageData(originalImageData, 0, 0);
-                }
-            }
-        }
-    }
+    // Calcular ponto de início para centralizar o corte horizontalmente
+    let startX = (videoWidth - cropWidth) / 2;
+    let startY = 0; // Manter altura total
+
+    // Ajustar tamanho do canvas para refletir o recorte final
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+
+    // Desenhar a imagem cortada no canvas
+    context.drawImage(video, startX, startY, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+
+    canvas.style.display = 'block';
+    video.style.display = 'none';
+    document.getElementById('downloadButton').style.display = 'inline-block';
+    document.getElementById('newPhotoButton').style.display = 'inline-block';
+    document.getElementById('captureButton').style.display = 'none';
+    document.getElementById('cameraSwitchButton').style.display = 'none';
+
+    document.getElementById("loadingIcon").style.display = "none";
+}
+
 
     function applyGrayscale() {
         let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
