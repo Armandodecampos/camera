@@ -239,13 +239,10 @@
                     let originalWidth = img.width;
                     let originalHeight = img.height;
 
-                    let targetHeight = originalHeight;
-                    let targetWidth = Math.round(originalHeight * 0.8511);
-                    let startX = Math.round((originalWidth - targetWidth) / 2);
-
-                    canvas.width = targetWidth;
-                    canvas.height = targetHeight;
-                    context.drawImage(img, startX, 0, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+                    // Desenha o Blob no canvas com as dimensões originais
+                    canvas.width = originalWidth;
+                    canvas.height = originalHeight;
+                    context.drawImage(img, 0, 0, originalWidth, originalHeight);
 
                     originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     if (isGrayscale) applyGrayscale();
