@@ -1,0 +1,275 @@
+<html lang="en"></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools</title>
+    <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
+    <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+    body{
+    background:#ddd;
+	padding:1%;
+    }
+    @media (orientation: landscape) {
+    	body {
+    		padding-right:5%;
+		padding-left:5%;
+        background:#ddd;
+	     }
+    }
+        .camera-container {
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    overflow: hidden;
+}
+
+#video, #canvas {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 3 / 4; /* Força a proporção 3:4 */
+    border:1px solid #fff;
+}
+
+@media (min-width: 701px) {
+    #video, #canvas {
+        max-width: 300px; /* Ajuste para a largura desejada da foto */
+        max-height: 400px; /* Ajuste para a altura desejada da foto */
+    }
+}
+
+#canvas {
+    display: none;
+    z-index: 2; /* Aumente o z-index para sobrepor o vídeo */
+}
+.btn-container {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 2; /* Assegura que os botões fiquem sobre a imagem da câmera */
+
+}
+
+.camera-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
+    border:2px solid #000;
+}
+
+.btncamera{
+    background: #fff;
+    color:#000;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    width:70px;
+    height:70px;
+    padding: 20px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
+    border:2px solid #000;
+    font-size:20px;
+}
+.grayscale {
+    filter: grayscale(100%);
+}
+    </style>
+</head>
+<body>
+    
+    <div class="camera-container" id="cameraContainer">
+        <video id="video" autoplay></video>
+        <canvas id="canvas" width="300" height="400"></canvas>
+        <div class="btn-container">
+            <button class="btncamera" style="background:#ccc" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
+    <i class="fas fa-trash-alt"></i>
+</button>
+            <button class="btncamera" style="background:#ccc" id="cameraSwitchButton" onclick="switchCamera()">
+    <i class="fas fa-sync-alt"></i>
+</button>
+<button class="btncamera" style="background:#7f7;width:80px;height:80px;font-size:25px;bottom:100px" id="captureButton" onclick="takePhoto()">
+    <i class="fas fa-camera"></i>
+</button>
+<button class="btncamera" style="background:#7f7;width:80px;height:80px;font-size:25px;bottom:100px" id="downloadButton" onclick="downloadPhoto()">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="btncamera" style="background:#ccc" id="filterButton" onclick="toggleFilter()">
+    <i class="fas fa-adjust"></i>
+</button>
+
+        </div>
+    </div>
+<script>
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let context = canvas.getContext('2d');
+let cameraContainer = document.getElementById('cameraContainer');
+let stream = null;
+let facingMode = 'user'; // 'user' para a câmera frontal, 'environment' para a traseira
+
+
+function startCamera() {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    let videoWidth = screenWidth;
+    let videoHeight = (screenWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+
+    if (videoHeight > screenHeight) {
+        videoHeight = screenHeight;
+        videoWidth = (screenHeight * 85.11) / 100; // Ajuste para 85.11% de largura
+    }
+
+    if (screenWidth > 700) {
+        videoWidth = Math.min(videoWidth, 700);
+        videoHeight = (videoWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+    }
+
+    video.width = videoWidth;
+    video.height = videoHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
+    const constraints = {
+        video: {
+            width: { ideal: videoWidth },
+            height: { ideal: videoHeight },
+            aspectRatio: videoWidth / videoHeight, // Mantém a proporção
+            facingMode: facingMode
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (mediaStream) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            stream = mediaStream;
+            video.srcObject = mediaStream;
+        })
+        .catch(function (error) {
+            console.error('Erro ao acessar a câmera: ', error);
+        });
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+}
+
+function takePhoto() {
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    context.drawImage(video, 0, 0, width, height);
+
+    // Aplica o filtro de preto e branco se estiver ativado
+    if (isGrayscale) {
+        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+            let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = data[i + 1] = data[i + 2] = avg; // Converte para escala de cinza
+        }
+        context.putImageData(imageData, 0, 0);
+    }
+
+    canvas.style.display = 'block';
+    video.style.display = 'none';
+    document.getElementById('captureButton').style.display = 'none';
+    document.getElementById('cameraSwitchButton').style.display = 'none';
+    document.getElementById('downloadButton').style.display = 'inline-block';
+    document.getElementById('newPhotoButton').style.display = 'inline-block';
+}
+
+
+function downloadPhoto() {
+    let link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'foto_85_11.png';
+    link.click();
+}
+
+function newPhoto() {
+    canvas.style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('downloadButton').style.display = 'none';
+    document.getElementById('newPhotoButton').style.display = 'none';
+    document.getElementById('cameraSwitchButton').style.display = 'inline-block';
+    document.getElementById('captureButton').style.display = 'inline-block';
+}
+
+
+function switchCamera() {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    stopCamera();
+    startCamera();
+}
+
+let isGrayscale = false;
+
+function toggleFilter() {
+    isGrayscale = !isGrayscale;
+    
+    // Alterna a câmera para preto e branco ou colorido
+    if (isGrayscale) {
+        video.classList.add('grayscale');
+    } else {
+        video.classList.remove('grayscale');
+    }
+    
+    // Aplica o efeito na foto tirada
+    if (canvas.style.display === 'block') {
+        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+        
+        if (isGrayscale) {
+            for (let i = 0; i < data.length; i += 4) {
+                let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = data[i + 1] = data[i + 2] = avg; // Converte para escala de cinza
+            }
+            context.putImageData(imageData, 0, 0);
+        } else {
+            newPhoto(); // Se voltar para colorido, tira uma nova foto sem filtro
+        }
+    }
+}
+
+
+window.onload = function() {
+document.getElementById('downloadButton').style.display = 'none';
+document.getElementById('newPhotoButton').style.display = 'none';
+    startCamera();  
+};
+</script>
+</body>
+</html>
