@@ -6,7 +6,7 @@
     <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-	<link rel="icon" type="image/png" href="favicon.png">
+	<link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
 
     <style>
     body{
@@ -216,16 +216,12 @@ function takePhoto() {
 
     context.drawImage(video, 0, 0, width, height);
 
-    // Aplica o filtro de preto e branco se estiver ativado
+    // Salva a versão colorida da foto original antes de qualquer filtro
+    originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    // Aplica o filtro preto e branco se estiver ativado
     if (isGrayscale) {
-        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = data[i + 1] = data[i + 2] = avg; // Converte para escala de cinza
-        }
-        context.putImageData(imageData, 0, 0);
+        applyGrayscale();
     }
 
     canvas.style.display = 'block';
@@ -235,6 +231,7 @@ function takePhoto() {
     document.getElementById('downloadButton').style.display = 'inline-block';
     document.getElementById('newPhotoButton').style.display = 'inline-block';
 }
+
 
 
 function downloadPhoto() {
@@ -261,33 +258,39 @@ function switchCamera() {
 }
 
 let isGrayscale = false;
+let originalImageData = null; // Armazena a versão colorida da imagem
 
 function toggleFilter() {
     isGrayscale = !isGrayscale;
-    
-    // Alterna a câmera para preto e branco ou colorido
-    if (isGrayscale) {
-        video.classList.add('grayscale');
-    } else {
-        video.classList.remove('grayscale');
-    }
-    
-    // Aplica o efeito na foto tirada
+
+    // Alterna o filtro da câmera ao vivo
+    video.classList.toggle('grayscale', isGrayscale);
+
+    // Se uma foto foi tirada, alterna o filtro no canvas
     if (canvas.style.display === 'block') {
-        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imageData.data;
-        
         if (isGrayscale) {
-            for (let i = 0; i < data.length; i += 4) {
-                let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                data[i] = data[i + 1] = data[i + 2] = avg; // Converte para escala de cinza
-            }
-            context.putImageData(imageData, 0, 0);
+            applyGrayscale();
         } else {
-            newPhoto(); // Se voltar para colorido, tira uma nova foto sem filtro
+            // Restaura a imagem original corretamente
+            if (originalImageData) {
+                context.putImageData(originalImageData, 0, 0);
+            }
         }
     }
 }
+
+function applyGrayscale() {
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+        let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        data[i] = data[i + 1] = data[i + 2] = avg;
+    }
+
+    context.putImageData(imageData, 0, 0);
+}
+
 
 
 window.onload = function() {
