@@ -299,41 +299,50 @@ function stopCamera() {
 }
 
 function takePhoto() {
-        let width = video.videoWidth;
-        let height = video.videoHeight;
-        let aspectRatio = width / height;
+    let videoAspectRatio = video.videoWidth / video.videoHeight;
+    let displayAspectRatio = video.clientWidth / video.clientHeight;
 
-        canvas.width = width;
-        canvas.height = height;
+    let width = video.videoWidth;
+    let height = video.videoHeight;
 
-        // Animação de fechamento do diafragma
-        let shutter = document.getElementById("shutterOverlay");
-        shutter.style.opacity = "1";
-        shutter.style.animation = "shutterEffect 0.3s ease-in-out";
-
-        setTimeout(() => {
-            context.drawImage(video, 0, 0, width, height);
-            originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-            if (isGrayscale) {
-                applyGrayscale();
-            }
-
-            canvas.style.display = "block";
-            video.style.display = "none";
-            document.getElementById("captureButton").style.display = "none";
-            document.getElementById("cameraSwitchButton").style.display = "none";
-            document.getElementById("downloadButton").style.display = "inline-block";
-            document.getElementById("newPhotoButton").style.display = "inline-block";
-            document.getElementById("timerButton").style.display = "none";
-            // Restaura a tela após o efeito
-            shutter.style.opacity = "0";
-        }, 300);
+    // Se o vídeo estiver mais largo do que a exibição, ajustamos a altura
+    if (videoAspectRatio > displayAspectRatio) {
+        width = height * displayAspectRatio;
+    } 
+    // Se o vídeo estiver mais alto do que a exibição, ajustamos a largura
+    else {
+        height = width / displayAspectRatio;
     }
 
+    canvas.width = width;
+    canvas.height = height;
 
+    let sx = (video.videoWidth - width) / 2;
+    let sy = (video.videoHeight - height) / 2;
 
+    let shutter = document.getElementById("shutterOverlay");
+    shutter.style.opacity = "1";
+    shutter.style.animation = "shutterEffect 0.3s ease-in-out";
 
+    setTimeout(() => {
+        context.drawImage(video, sx, sy, width, height, 0, 0, width, height);
+        originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (isGrayscale) {
+            applyGrayscale();
+        }
+
+        canvas.style.display = "block";
+        video.style.display = "none";
+        document.getElementById("captureButton").style.display = "none";
+        document.getElementById("cameraSwitchButton").style.display = "none";
+        document.getElementById("downloadButton").style.display = "inline-block";
+        document.getElementById("newPhotoButton").style.display = "inline-block";
+        document.getElementById("timerButton").style.display = "none";
+
+        shutter.style.opacity = "0";
+    }, 300);
+}
 
 function generateRandomFilename() {
     let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
