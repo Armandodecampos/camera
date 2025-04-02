@@ -6,7 +6,7 @@
     <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
+	<link rel="icon" type="favicon/png" href="favicon.png">
     <style>
     body{
     background:#ddd;
@@ -94,9 +94,17 @@
     border:2px solid #000;
     font-size:20px;
 }
+
 .grayscale {
     filter: grayscale(100%);
 }
+
+button, .btncamera {
+    outline: none; /* Remove a borda azul ao focar */
+    -webkit-tap-highlight-color: transparent; /* Remove o efeito azul ao tocar */
+    user-select: none; /* Impede a seleção de texto acidental */
+}
+
     </style>
 </head>
 <body>
