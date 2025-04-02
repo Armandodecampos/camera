@@ -140,6 +140,27 @@ button, .btncamera {
     z-index: 2000;
     pointer-events: none;
 }
+#timerButton {
+    position: fixed;
+    top: 10px;
+    margin:auto;
+    left:0px;
+    right: 0px; /* Altera para right: 10px; */
+    background: #222;
+    color: #fff;
+    z-index: 3;
+}
+#timerText {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4em;
+    color: white;
+    z-index: 4;
+    display: none; /* Começa escondido */
+    text-shadow: 2px 2px 4px black; /* Adiciona a sombra preta */
+}
     </style>
 </head>
 <body>
@@ -148,6 +169,9 @@ button, .btncamera {
 </div>
     
     <div class="camera-container" id="cameraContainer">
+    <button id="timerButton" class="btncamera" style="position: fixed; top: 10px; right: 10px; background: #222; color: #fff;">
+    <i class="fas fa-clock"></i> <span id="timerText">10s</span>
+</button>
         <video id="video" autoplay></video>
         <canvas id="canvas" width="300" height="400"></canvas>
         <div class="btn-container">
@@ -184,6 +208,42 @@ let context = canvas.getContext('2d');
 let cameraContainer = document.getElementById('cameraContainer');
 let stream = null;
 let facingMode = 'environment'; // Garante que a câmera traseira seja escolhida
+
+let timerActive = false; // Estado do temporizador
+    let timerInterval; // Variável para armazenar o intervalo do temporizador
+
+    document.getElementById('timerButton').addEventListener('click', function() {
+        let timerText = document.getElementById('timerText'); // Elemento para o texto do temporizador
+
+        if (timerActive) {
+            // Cancelar o temporizador
+            clearInterval(timerInterval);
+            timerActive = false;
+            this.innerHTML = '<i class="fas fa-clock"></i> <span id="timerText">10s</span>';
+            timerText.style.display = 'none'; // Esconde o texto ao cancelar
+        } else {
+            // Iniciar o temporizador
+            let timer = 10;
+           
+            timerActive = true;
+
+            timerText.textContent = `${timer}`; // Atualiza o texto inicial
+            timerText.style.display = 'block'; // Mostra o texto
+
+            timerInterval = setInterval(() => {
+                timer--;
+                timerText.textContent = `${timer}`; // Atualiza o texto a cada segundo
+
+                if (timer === 0) {
+                    clearInterval(timerInterval);
+                    timerActive = false;
+                    takePhoto();
+                    this.innerHTML = '<i class="fas fa-clock"></i> <span id="timerText">10s</span>';
+                    timerText.style.display = 'none'; // Esconde o texto após a foto
+                }
+            }, 1000);
+        }
+    });
 
 function startCamera() {
     const screenWidth = window.innerWidth;
@@ -261,7 +321,7 @@ function takePhoto() {
         document.getElementById("cameraSwitchButton").style.display = "none";
         document.getElementById("downloadButton").style.display = "inline-block";
         document.getElementById("newPhotoButton").style.display = "inline-block";
-
+        document.getElementById("timerButton").style.display = "none";
         // Restaura a tela após o efeito
         shutter.style.opacity = "0";
     }, 300);
@@ -307,7 +367,11 @@ function newPhoto() {
     document.getElementById('newPhotoButton').style.display = 'none';
     document.getElementById('cameraSwitchButton').style.display = 'inline-block';
     document.getElementById('captureButton').style.display = 'inline-block';
+
+    // Mostra o botão do temporizador novamente
+    document.getElementById("timerButton").style.display = "inline-block";
 }
+
 
 
 function switchCamera() {
