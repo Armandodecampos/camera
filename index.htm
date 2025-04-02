@@ -36,19 +36,16 @@
 }
 
 #video, #canvas {
-    width: 100%;
+    width: 90%;
     height: auto;
     object-fit: cover;
     aspect-ratio: 3 / 4; /* Força a proporção 3:4 */
-    border:1px solid #fff;
+    border:2px solid #fff;
+            max-width: 300px; /* Ajuste para a largura desejada da foto */
+        max-height: 400px; /* Ajuste para a altura desejada da foto */
 }
 
-@media (min-width: 701px) {
-    #video, #canvas {
-        max-width: 300px; /* Ajuste para a largura desejada da foto */
-        max-height: 400px; /* Ajuste para a altura desejada da foto */
-    }
-}
+
 
 #canvas {
     display: none;
@@ -126,19 +123,19 @@ button, .btncamera {
         <video id="video" autoplay></video>
         <canvas id="canvas" width="300" height="400"></canvas>
         <div class="btn-container">
-            <button class="btncamera" style="background:#ccc" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
+            <button class="btncamera" style="background:#333;color:#fff" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
     <i class="fas fa-trash-alt"></i>
 </button>
-            <button class="btncamera" style="background:#ccc" id="cameraSwitchButton" onclick="switchCamera()">
+            <button class="btncamera" style="background:#333;color:#fff" id="cameraSwitchButton" onclick="switchCamera()">
     <i class="fas fa-sync-alt"></i>
 </button>
-<button class="btncamera" style="background:#7f7;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
+<button class="btncamera" style="background:#fff;color:#333;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
     <i class="fas fa-camera"></i>
 </button>
-<button class="btncamera" style="background:#7f7;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
+<button class="btncamera" style="background:#fff;color:#333;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
                 <i class="fas fa-download"></i>
             </button>
-            <button class="btncamera" style="background:#ccc" id="filterButton" onclick="toggleFilter()">
+            <button class="btncamera" style="background:#333;color:#fff" id="filterButton" onclick="toggleFilter()">
     <i class="fas fa-adjust"></i>
 </button>
 
@@ -152,38 +149,17 @@ button, .btncamera {
 let video = document.getElementById('video');
 let canvas = document.getElementById('canvas');
 let context = canvas.getContext('2d');
-let cameraContainer = document.getElementById('cameraContainer');
 let stream = null;
-let facingMode = 'user'; // 'user' para a câmera frontal, 'environment' para a traseira
-
+let mediaTrack = null;
+let facingMode = 'user';
+let isGrayscale = false;
+let originalImageData = null; // Armazena a imagem original
 
 function startCamera() {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-    let videoWidth = screenWidth;
-    let videoHeight = (screenWidth * 100) / 85.11; // Ajuste para 85.11% de largura
-
-    if (videoHeight > screenHeight) {
-        videoHeight = screenHeight;
-        videoWidth = (screenHeight * 85.11) / 100; // Ajuste para 85.11% de largura
-    }
-
-    if (screenWidth > 700) {
-        videoWidth = Math.min(videoWidth, 700);
-        videoHeight = (videoWidth * 100) / 85.11; // Ajuste para 85.11% de largura
-    }
-
-    video.width = videoWidth;
-    video.height = videoHeight;
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-
     const constraints = {
         video: {
-            width: { ideal: videoWidth },
-            height: { ideal: videoHeight },
-            aspectRatio: videoWidth / videoHeight, // Mantém a proporção
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
             facingMode: facingMode
         }
     };
@@ -194,6 +170,7 @@ function startCamera() {
                 stream.getTracks().forEach(track => track.stop());
             }
             stream = mediaStream;
+            mediaTrack = mediaStream.getVideoTracks()[0];
             video.srcObject = mediaStream;
         })
         .catch(function (error) {
@@ -201,72 +178,63 @@ function startCamera() {
         });
 }
 
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-}
-
 function takePhoto() {
-    let width = video.videoWidth;
-    let height = video.videoHeight;
+    if (!mediaTrack) return;
+    
+    let imageCapture = new ImageCapture(mediaTrack);
+    
+    imageCapture.takePhoto()
+        .then(blob => {
+            let imgURL = URL.createObjectURL(blob);
+            let img = new Image();
+            img.onload = function () {
+                let originalWidth = img.width;
+                let originalHeight = img.height;
 
-    canvas.width = width;
-    canvas.height = height;
+                // Definir dimensões desejadas
+                let targetHeight = originalHeight; // 100% da altura
+                let targetWidth = Math.round(originalHeight * 0.8511); // 85.11% da altura
+                
+                let startX = Math.round((originalWidth - targetWidth) / 2); // Centraliza o corte
 
-    context.drawImage(video, 0, 0, width, height);
+                // Redefinir canvas para novo tamanho
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                context.drawImage(img, startX, 0, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
 
-    // Salva a versão colorida da foto original antes de qualquer filtro
-    originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                // Armazena a imagem original antes de qualquer filtro
+                originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Aplica o filtro preto e branco se estiver ativado
-    if (isGrayscale) {
-        applyGrayscale();
-    }
+                // Aplica o filtro preto e branco se estiver ativado
+                if (isGrayscale) {
+                    applyGrayscale();
+                }
 
-    canvas.style.display = 'block';
-    video.style.display = 'none';
-    document.getElementById('captureButton').style.display = 'none';
-    document.getElementById('cameraSwitchButton').style.display = 'none';
-    document.getElementById('downloadButton').style.display = 'inline-block';
-    document.getElementById('newPhotoButton').style.display = 'inline-block';
+                URL.revokeObjectURL(imgURL);
+            };
+            img.src = imgURL;
+            
+            canvas.style.display = 'block';
+            video.style.display = 'none';
+            document.getElementById('downloadButton').style.display = 'inline-block';
+            document.getElementById('newPhotoButton').style.display = 'inline-block';
+            document.getElementById('captureButton').style.display = 'none';
+            document.getElementById('cameraSwitchButton').style.display = 'none';
+        })
+        .catch(error => console.error('Erro ao capturar foto: ', error));
 }
-
-
-
-function downloadPhoto() {
-    let link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = 'foto_85_11.png';
-    link.click();
-}
-
-function newPhoto() {
-    canvas.style.display = 'none';
-    video.style.display = 'block';
-    document.getElementById('downloadButton').style.display = 'none';
-    document.getElementById('newPhotoButton').style.display = 'none';
-    document.getElementById('cameraSwitchButton').style.display = 'inline-block';
-    document.getElementById('captureButton').style.display = 'inline-block';
-}
-
-
-function switchCamera() {
-    facingMode = facingMode === 'user' ? 'environment' : 'user';
-    stopCamera();
-    startCamera();
-}
-
-let isGrayscale = false;
-let originalImageData = null; // Armazena a versão colorida da imagem
 
 function toggleFilter() {
     isGrayscale = !isGrayscale;
 
-    // Alterna o filtro da câmera ao vivo
-    video.classList.toggle('grayscale', isGrayscale);
+    // Alterna o filtro no vídeo ao vivo
+    if (isGrayscale) {
+        video.style.filter = 'grayscale(100%)';
+    } else {
+        video.style.filter = 'none';
+    }
 
-    // Se uma foto foi tirada, alterna o filtro no canvas
+    // Alterna o filtro na foto tirada, se houver
     if (canvas.style.display === 'block') {
         if (isGrayscale) {
             applyGrayscale();
@@ -291,13 +259,33 @@ function applyGrayscale() {
     context.putImageData(imageData, 0, 0);
 }
 
+function downloadPhoto() {
+    let link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'foto_cortada.png';
+    link.click();
+}
 
+function newPhoto() {
+    canvas.style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('downloadButton').style.display = 'none';
+    document.getElementById('newPhotoButton').style.display = 'none';
+    document.getElementById('captureButton').style.display = 'inline-block';
+    document.getElementById('cameraSwitchButton').style.display = 'inline-block';
+}
+
+function switchCamera() {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    startCamera();
+}
 
 window.onload = function() {
-document.getElementById('downloadButton').style.display = 'none';
-document.getElementById('newPhotoButton').style.display = 'none';
-    startCamera();  
+    document.getElementById('downloadButton').style.display = 'none';
+    document.getElementById('newPhotoButton').style.display = 'none';
+    startCamera();
 };
+
 </script>
 </body>
 </html>
