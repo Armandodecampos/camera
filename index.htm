@@ -296,36 +296,36 @@ function stopCamera() {
 }
 
 function takePhoto() {
-    let width = video.videoWidth;
-    let height = video.videoHeight;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
 
-    canvas.width = width;
-    canvas.height = height;
+        canvas.width = width;
+        canvas.height = height;
 
-    // Animação de fechamento do diafragma
-    let shutter = document.getElementById("shutterOverlay");
-    shutter.style.opacity = "1";
-    shutter.style.animation = "shutterEffect 0.3s ease-in-out";
+        // Animação de fechamento do diafragma
+        let shutter = document.getElementById("shutterOverlay");
+        shutter.style.opacity = "1";
+        shutter.style.animation = "shutterEffect 0.3s ease-in-out";
 
-    setTimeout(() => {
-        context.drawImage(video, 0, 0, width, height);
-        originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        setTimeout(() => {
+            context.drawImage(video, 0, 0, width, height); // Usa as dimensões do video
+            originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-        if (isGrayscale) {
-            applyGrayscale();
-        }
+            if (isGrayscale) {
+                applyGrayscale();
+            }
 
-        canvas.style.display = "block";
-        video.style.display = "none";
-        document.getElementById("captureButton").style.display = "none";
-        document.getElementById("cameraSwitchButton").style.display = "none";
-        document.getElementById("downloadButton").style.display = "inline-block";
-        document.getElementById("newPhotoButton").style.display = "inline-block";
-        document.getElementById("timerButton").style.display = "none";
-        // Restaura a tela após o efeito
-        shutter.style.opacity = "0";
-    }, 300);
-}
+            canvas.style.display = "block";
+            video.style.display = "none";
+            document.getElementById("captureButton").style.display = "none";
+            document.getElementById("cameraSwitchButton").style.display = "none";
+            document.getElementById("downloadButton").style.display = "inline-block";
+            document.getElementById("newPhotoButton").style.display = "inline-block";
+            document.getElementById("timerButton").style.display = "none";
+            // Restaura a tela após o efeito
+            shutter.style.opacity = "0";
+        }, 300);
+    }
 
 
 
