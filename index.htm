@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 	<link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <style>
     body{
     background:#ddd;
@@ -160,6 +161,7 @@ button, .btncamera {
     z-index: 4;
     display: none; /* Começa escondido */
     text-shadow: 2px 2px 4px black; /* Adiciona a sombra preta */
+    pointer-events: none; /* Impede que o texto seja clicado */
 }
     </style>
 </head>
@@ -170,7 +172,7 @@ button, .btncamera {
     
     <div class="camera-container" id="cameraContainer">
     <button id="timerButton" class="btncamera" style="position: fixed; top: 10px; right: 10px; background: #222; color: #fff;">
-    <i class="fas fa-clock"></i> <span id="timerText">10s</span>
+    <i id="timerIcon" class="fas fa-clock"></i> <span id="timerText">10s</span>
 </button>
         <video id="video" autoplay></video>
         <canvas id="canvas" width="300" height="400"></canvas>
@@ -209,85 +211,86 @@ let cameraContainer = document.getElementById('cameraContainer');
 let stream = null;
 let facingMode = 'environment'; // Garante que a câmera traseira seja escolhida
 
-let timerActive = false; // Estado do temporizador
-    let timerInterval; // Variável para armazenar o intervalo do temporizador
+let timerActive = false;
+    let timerInterval;
 
     document.getElementById('timerButton').addEventListener('click', function() {
-        let timerText = document.getElementById('timerText'); // Elemento para o texto do temporizador
+        let timerText = document.getElementById('timerText');
+        let timerIcon = document.getElementById('timerIcon');
 
         if (timerActive) {
             // Cancelar o temporizador
             clearInterval(timerInterval);
             timerActive = false;
-            this.innerHTML = '<i class="fas fa-clock"></i> <span id="timerText">10s</span>';
-            timerText.style.display = 'none'; // Esconde o texto ao cancelar
+            timerIcon.className = 'fas fa-clock'; // Volta para o ícone de relógio
+            timerText.textContent = "10s";
+            timerText.style.display = 'none';
         } else {
             // Iniciar o temporizador
             let timer = 10;
-           
             timerActive = true;
-
-            timerText.textContent = `${timer}`; // Atualiza o texto inicial
-            timerText.style.display = 'block'; // Mostra o texto
+            timerIcon.className = 'fas fa-times'; // Muda para ícone de cancelar
+            timerText.textContent = `${timer}`;
+            timerText.style.display = 'block';
 
             timerInterval = setInterval(() => {
                 timer--;
-                timerText.textContent = `${timer}`; // Atualiza o texto a cada segundo
+                timerText.textContent = `${timer}`;
 
                 if (timer === 0) {
                     clearInterval(timerInterval);
                     timerActive = false;
                     takePhoto();
-                    this.innerHTML = '<i class="fas fa-clock"></i> <span id="timerText">10s</span>';
-                    timerText.style.display = 'none'; // Esconde o texto após a foto
+                    timerIcon.className = 'fas fa-clock';
+                    timerText.textContent = "10s";
+                    timerText.style.display = 'none';
                 }
             }, 1000);
         }
     });
-
 function startCamera() {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
 
-    let videoWidth = screenWidth;
-    let videoHeight = (screenWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+        let videoWidth = screenWidth;
+        let videoHeight = (screenWidth * 100) / 85.11; // Ajuste para 85.11% de largura
 
-    if (videoHeight > screenHeight) {
-        videoHeight = screenHeight;
-        videoWidth = (screenHeight * 85.11) / 100; // Ajuste para 85.11% de largura
-    }
-
-    if (screenWidth > 700) {
-        videoWidth = Math.min(videoWidth, 700);
-        videoHeight = (videoWidth * 100) / 85.11; // Ajuste para 85.11% de largura
-    }
-
-    video.width = videoWidth;
-    video.height = videoHeight;
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-
-    const constraints = {
-        video: {
-            width: { ideal: videoWidth },
-            height: { ideal: videoHeight },
-            aspectRatio: videoWidth / videoHeight, // Mantém a proporção
-            facingMode: facingMode
+        if (videoHeight > screenHeight) {
+            videoHeight = screenHeight;
+            videoWidth = (screenHeight * 85.11) / 100; // Ajuste para 85.11% de largura
         }
-    };
 
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function (mediaStream) {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+        if (screenWidth > 700) {
+            videoWidth = Math.min(videoWidth, 700);
+            videoHeight = (videoWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+        }
+
+        video.width = videoWidth;
+        video.height = videoHeight;
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+
+        const constraints = {
+            video: {
+                width: { ideal: videoWidth },
+                height: { ideal: videoHeight },
+                aspectRatio: videoWidth / videoHeight, // Mantém a proporção
+                facingMode: facingMode
             }
-            stream = mediaStream;
-            video.srcObject = mediaStream;
-        })
-        .catch(function (error) {
-            console.error('Erro ao acessar a câmera: ', error);
-        });
-}
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function (mediaStream) {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                stream = mediaStream;
+                video.srcObject = mediaStream;
+            })
+            .catch(function (error) {
+                console.error('Erro ao acessar a câmera: ', error);
+            });
+    }
 
 function stopCamera() {
     if (stream) {
@@ -298,6 +301,7 @@ function stopCamera() {
 function takePhoto() {
         let width = video.videoWidth;
         let height = video.videoHeight;
+        let aspectRatio = width / height;
 
         canvas.width = width;
         canvas.height = height;
@@ -308,7 +312,7 @@ function takePhoto() {
         shutter.style.animation = "shutterEffect 0.3s ease-in-out";
 
         setTimeout(() => {
-            context.drawImage(video, 0, 0, width, height); // Usa as dimensões do video
+            context.drawImage(video, 0, 0, width, height);
             originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
             if (isGrayscale) {
