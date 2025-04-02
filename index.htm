@@ -222,11 +222,15 @@
     }
 
     function takePhoto() {
-        document.getElementById("loadingIcon").style.display = "block"; // Show loading icon
-        if (!mediaTrack) return;
-        
+        document.getElementById("loadingIcon").style.display = "block";
+        if (!mediaTrack) {
+            console.error("Câmera não iniciada.");
+            document.getElementById("loadingIcon").style.display = "none";
+            return;
+        }
+
         let imageCapture = new ImageCapture(mediaTrack);
-        
+
         imageCapture.takePhoto()
             .then(blob => {
                 let imgURL = URL.createObjectURL(blob);
@@ -237,7 +241,6 @@
 
                     let targetHeight = originalHeight;
                     let targetWidth = Math.round(originalHeight * 0.8511);
-
                     let startX = Math.round((originalWidth - targetWidth) / 2);
 
                     canvas.width = targetWidth;
@@ -245,16 +248,13 @@
                     context.drawImage(img, startX, 0, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
 
                     originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-                    if (isGrayscale) {
-                        applyGrayscale();
-                    }
+                    if (isGrayscale) applyGrayscale();
 
                     URL.revokeObjectURL(imgURL);
-                    document.getElementById("loadingIcon").style.display = "none"; // Hide loading icon
+                    document.getElementById("loadingIcon").style.display = "none";
                 };
                 img.src = imgURL;
-                
+
                 canvas.style.display = 'block';
                 video.style.display = 'none';
                 document.getElementById('downloadButton').style.display = 'inline-block';
@@ -264,7 +264,7 @@
             })
             .catch(error => {
                 console.error('Erro ao capturar foto: ', error);
-                document.getElementById("loadingIcon").style.display = "none"; // Hide loading icon
+                document.getElementById("loadingIcon").style.display = "none";
             });
     }
 
