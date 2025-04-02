@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="en"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6,20 +6,20 @@
     <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
+
     <style>
-        body{
-            background:#ddd;
-            padding:1%;
-        }
-        @media (orientation: landscape) {
-            body {
-                padding-right:5%;
-                padding-left:5%;
-                background:#ddd;
-            }
-        }
+    body{
+    background:#ddd;
+	padding:1%;
+    }
+    @media (orientation: landscape) {
+    	body {
+    		padding-right:5%;
+		padding-left:5%;
+        background:#ddd;
+	     }
+    }
         .camera-container {
             z-index: 10;
             position: fixed;
@@ -59,57 +59,57 @@
             z-index: 2; /* Assegura que os botões fiquem sobre a imagem da câmera */
         }
 
-        .camera-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
-            border:2px solid #000;
-        }
+.camera-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
+    border:2px solid #000;
+}
 
-        .btncamera{
-            background: #fff;
-            color:#000;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            width:70px;
-            height:70px;
-            padding: 20px;
-            border-radius: 50%;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
-            border:2px solid #000;
-            font-size:20px;
-        }
+.btncamera{
+    background: #fff;
+    color:#000;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    width:70px;
+    height:70px;
+    padding: 20px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2; /* Garante que o botão da câmera fique acima da imagem */
+    border:2px solid #000;
+    font-size:20px;
+}
 
-        .grayscale {
-            filter: grayscale(100%);
-        }
+.grayscale {
+    filter: grayscale(100%);
+}
 
-        button, .btncamera {
-            outline: none; /* Remove a borda azul ao focar */
-            -webkit-tap-highlight-color: transparent; /* Remove o efeito azul ao tocar */
-            user-select: none; /* Impede a seleção de texto acidental */
-        }
-        #loader {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: #111;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        #successIcon {
+button, .btncamera {
+    outline: none; /* Remove a borda azul ao focar */
+    -webkit-tap-highlight-color: transparent; /* Remove o efeito azul ao tocar */
+    user-select: none; /* Impede a seleção de texto acidental */
+}
+#loader {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+}
+#successIcon {
             display: none;
             position: fixed;
             top: 50%;
@@ -123,32 +123,22 @@
             z-index: 1000;
             text-align: center;
         }
-        #loadingIcon {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 100px; /* Ajuste o tamanho do ícone */
-            color: #fff; /* Branco */
-            background: rgba(0, 0, 0, 0.7); /* Fundo escuro translúcido */
-            padding: 20px;
-            border-radius: 50%;
-            z-index: 1001;
-            text-align: center;
-        }
-        .fa-check-circle {
-  opacity: 0;
-  animation: fadeIn 0.5s ease-in-out forwards;
+        @keyframes shutterEffect {
+    0% { clip-path: circle(100% at center); opacity: 1; }
+    100% { clip-path: circle(0% at center); opacity: 0; }
 }
 
-@keyframes fadeIn {
-  from {
+#shutterOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
     opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    clip-path: circle(100% at center);
+    z-index: 2000;
+    pointer-events: none;
 }
     </style>
 </head>
@@ -161,154 +151,200 @@
         <video id="video" autoplay></video>
         <canvas id="canvas" width="300" height="400"></canvas>
         <div class="btn-container">
-            <button class="btncamera" style="background:#333;color:#fff" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-            <button class="btncamera" style="background:#333;color:#fff" id="cameraSwitchButton" onclick="switchCamera()">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            <button class="btncamera" style="background:#fff;color:#333;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
-                <i class="fas fa-camera"></i>
-            </button>
-            <button class="btncamera" style="background:#fff;color:#333;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
+            <button class="btncamera" style="background:#222;color:#fff;" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
+    <i class="fas fa-trash-alt"></i>
+</button>
+            <button class="btncamera" style="background:#222;color:#fff;" id="cameraSwitchButton" onclick="switchCamera()">
+    <i class="fas fa-sync-alt"></i>
+</button>
+<button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
+    <i class="fas fa-camera"></i>
+</button>
+<button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
                 <i class="fas fa-download"></i>
             </button>
-            <button class="btncamera" style="background:#333;color:#fff" id="filterButton" onclick="toggleFilter()">
-                <i class="fas fa-adjust"></i>
-            </button>
+            <button class="btncamera" style="background:#222;color:#fff;" id="filterButton" onclick="toggleFilter()">
+    <i class="fas fa-adjust"></i>
+</button>
+
         </div>
     </div>
-    <div id="successIcon">
+        <div id="successIcon">
         <i class="fas fa-check-circle"></i>
     </div>
-    <div id="loadingIcon">
-        <i class="fas fa-circle-notch fa-spin"></i>
-    </div>
+    <div id="shutterOverlay"></div>
 <script>
-    window.addEventListener("load", function() {
+ window.addEventListener("load", function() {
         document.getElementById("loader").style.display = "none";
     });
 
-    let video = document.getElementById('video');
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
-    let stream = null;
-    let mediaTrack = null;
-    let facingMode = 'user';
-    let isGrayscale = false;
-    let originalImageData = null;
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let context = canvas.getContext('2d');
+let cameraContainer = document.getElementById('cameraContainer');
+let stream = null;
+let facingMode = 'user'; // 'user' para a câmera frontal, 'environment' para a traseira
 
-    function startCamera() {
-        const constraints = {
-            video: {
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-                facingMode: facingMode
+
+function startCamera() {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    let videoWidth = screenWidth;
+    let videoHeight = (screenWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+
+    if (videoHeight > screenHeight) {
+        videoHeight = screenHeight;
+        videoWidth = (screenHeight * 85.11) / 100; // Ajuste para 85.11% de largura
+    }
+
+    if (screenWidth > 700) {
+        videoWidth = Math.min(videoWidth, 700);
+        videoHeight = (videoWidth * 100) / 85.11; // Ajuste para 85.11% de largura
+    }
+
+    video.width = videoWidth;
+    video.height = videoHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
+    const constraints = {
+        video: {
+            width: { ideal: videoWidth },
+            height: { ideal: videoHeight },
+            aspectRatio: videoWidth / videoHeight, // Mantém a proporção
+            facingMode: facingMode
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (mediaStream) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
             }
-        };
+            stream = mediaStream;
+            video.srcObject = mediaStream;
+        })
+        .catch(function (error) {
+            console.error('Erro ao acessar a câmera: ', error);
+        });
+}
 
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function (mediaStream) {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                stream = mediaStream;
-                mediaTrack = mediaStream.getVideoTracks()[0];
-                video.srcObject = mediaStream;
-            })
-            .catch(function (error) {
-                console.error('Erro ao acessar a câmera: ', error);
-            });
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
     }
+}
 
-    function takePhoto() {
-    document.getElementById("loadingIcon").style.display = "block";
+function takePhoto() {
+    let width = video.videoWidth;
+    let height = video.videoHeight;
 
-    if (!video.videoWidth || !video.videoHeight) {
-        console.error("Câmera não iniciada.");
-        document.getElementById("loadingIcon").style.display = "none";
-        return;
-    }
+    canvas.width = width;
+    canvas.height = height;
 
-    // Pegando dimensões do vídeo
-    let videoWidth = video.videoWidth;
-    let videoHeight = video.videoHeight;
+    // Animação de fechamento do diafragma
+    let shutter = document.getElementById("shutterOverlay");
+    shutter.style.opacity = "1";
+    shutter.style.animation = "shutterEffect 0.3s ease-in-out";
 
-    // Definir proporção correta: altura 100% e largura 85.11% da altura
-    let aspectRatio = videoHeight / (videoHeight * 0.8511);
-    let cropWidth = videoHeight * 0.8511; // 85.11% da altura
-    let cropHeight = videoHeight; // 100% da altura
+    setTimeout(() => {
+        context.drawImage(video, 0, 0, width, height);
+        originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Calcular ponto de início para centralizar o corte horizontalmente
-    let startX = (videoWidth - cropWidth) / 2;
-    let startY = 0; // Manter altura total
+        if (isGrayscale) {
+            applyGrayscale();
+        }
 
-    // Ajustar tamanho do canvas para refletir o recorte final
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+        canvas.style.display = "block";
+        video.style.display = "none";
+        document.getElementById("captureButton").style.display = "none";
+        document.getElementById("cameraSwitchButton").style.display = "none";
+        document.getElementById("downloadButton").style.display = "inline-block";
+        document.getElementById("newPhotoButton").style.display = "inline-block";
 
-    // Desenhar a imagem cortada no canvas
-    context.drawImage(video, startX, startY, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
-
-    canvas.style.display = 'block';
-    video.style.display = 'none';
-    document.getElementById('downloadButton').style.display = 'inline-block';
-    document.getElementById('newPhotoButton').style.display = 'inline-block';
-    document.getElementById('captureButton').style.display = 'none';
-    document.getElementById('cameraSwitchButton').style.display = 'none';
-
-    document.getElementById("loadingIcon").style.display = "none";
+        // Restaura a tela após o efeito
+        shutter.style.opacity = "0";
+    }, 300);
 }
 
 
-    function applyGrayscale() {
-        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imageData.data;
 
-        for (let i = 0; i < data.length; i += 4) {
-            let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = data[i + 1] = data[i + 2] = avg;
+
+
+function downloadPhoto() {
+    let link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "foto_85_11.png";
+    link.click();
+
+    // Exibe o ícone de sucesso após o download
+    document.getElementById("successIcon").style.display = "block";
+
+    // Esconde o ícone de sucesso após 1 segundo
+    setTimeout(() => {
+        document.getElementById("successIcon").style.display = "none";
+    }, 1000);
+}
+
+
+function newPhoto() {
+    canvas.style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('downloadButton').style.display = 'none';
+    document.getElementById('newPhotoButton').style.display = 'none';
+    document.getElementById('cameraSwitchButton').style.display = 'inline-block';
+    document.getElementById('captureButton').style.display = 'inline-block';
+}
+
+
+function switchCamera() {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    stopCamera();
+    startCamera();
+}
+
+let isGrayscale = false;
+let originalImageData = null; // Armazena a versão colorida da imagem
+
+function toggleFilter() {
+    isGrayscale = !isGrayscale;
+
+    // Alterna o filtro da câmera ao vivo
+    video.classList.toggle('grayscale', isGrayscale);
+
+    // Se uma foto foi tirada, alterna o filtro no canvas
+    if (canvas.style.display === 'block') {
+        if (isGrayscale) {
+            applyGrayscale();
+        } else {
+            // Restaura a imagem original corretamente
+            if (originalImageData) {
+                context.putImageData(originalImageData, 0, 0);
+            }
         }
+    }
+}
 
-        context.putImageData(imageData, 0, 0);
+function applyGrayscale() {
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+        let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        data[i] = data[i + 1] = data[i + 2] = avg;
     }
 
-    function downloadPhoto() {
-        let link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = 'foto_cortada.png';
-        link.click();
+    context.putImageData(imageData, 0, 0);
+}
 
-        let successIcon = document.getElementById('successIcon');
-        successIcon.style.display = 'block';
 
-        setTimeout(() => {
-            successIcon.style.display = 'none';
-        }, 2000);
-    }
 
-    function newPhoto() {
-        canvas.style.display = 'none';
-        video.style.display = 'block';
-        document.getElementById('downloadButton').style.display = 'none';
-        document.getElementById('newPhotoButton').style.display = 'none';
-        document.getElementById('captureButton').style.display = 'inline-block';
-        document.getElementById('cameraSwitchButton').style.display = 'inline-block';
-    }
-
-    function switchCamera() {
-        facingMode = (facingMode === 'user') ? 'environment' : 'user';
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-        startCamera();
-    }
-
-    window.onload = function() {
-        document.getElementById('downloadButton').style.display = 'none';
-        document.getElementById('newPhotoButton').style.display = 'none';
-        startCamera();
-    };
+window.onload = function() {
+document.getElementById('downloadButton').style.display = 'none';
+document.getElementById('newPhotoButton').style.display = 'none';
+    startCamera();  
+};
 </script>
 </body>
 </html>
