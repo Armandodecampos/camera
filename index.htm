@@ -306,6 +306,13 @@ function takePhoto() {
     canvas.height = height;
     context.drawImage(video, 0, 0, width, height);
 
+    // Salva a imagem original antes de aplicar filtros
+    originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    // Se o modo preto e branco estiver ativado, aplica o efeito
+    if (isGrayscale) {
+        applyGrayscale();
+    }
 
     canvas.style.display = "block";
     video.style.display = "none";
@@ -315,6 +322,7 @@ function takePhoto() {
     document.getElementById("newPhotoButton").style.display = "inline-block";
     document.getElementById("timerButton").style.display = "none";
 }
+
 
 
 function generateRandomFilename() {
@@ -367,26 +375,24 @@ function switchCamera() {
 }
 
 let isGrayscale = false;
-let originalImageData = null; // Armazena a versão colorida da imagem
+let originalImageData = null;
 
 function toggleFilter() {
     isGrayscale = !isGrayscale;
 
-    // Alterna o filtro da câmera ao vivo
+    // Alterna o filtro no vídeo
     video.classList.toggle('grayscale', isGrayscale);
 
     // Se uma foto foi tirada, alterna o filtro no canvas
     if (canvas.style.display === 'block') {
         if (isGrayscale) {
             applyGrayscale();
-        } else {
-            // Restaura a imagem original corretamente
-            if (originalImageData) {
-                context.putImageData(originalImageData, 0, 0);
-            }
+        } else if (originalImageData) {
+            context.putImageData(originalImageData, 0, 0); // Restaura a imagem original
         }
     }
 }
+
 
 function applyGrayscale() {
     let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -399,6 +405,7 @@ function applyGrayscale() {
 
     context.putImageData(imageData, 0, 0);
 }
+
 
 
 
