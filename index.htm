@@ -183,8 +183,7 @@ let canvas = document.getElementById('canvas');
 let context = canvas.getContext('2d');
 let cameraContainer = document.getElementById('cameraContainer');
 let stream = null;
-let facingMode = 'user'; // 'user' para a câmera frontal, 'environment' para a traseira
-
+let facingMode = 'environment'; // Garante que a câmera traseira seja escolhida
 
 function startCamera() {
     const screenWidth = window.innerWidth;
@@ -272,10 +271,19 @@ function takePhoto() {
 
 
 
+function generateRandomFilename() {
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let filename = 'foto_';
+    for (let i = 0; i < 16; i++) { // Gera uma sequência de 16 caracteres aleatórios
+        filename += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return filename + '.png';
+}
+
 function downloadPhoto() {
     let link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
-    link.download = "foto_85_11.png";
+    link.download = generateRandomFilename(); // Nome do arquivo aleatório
     link.click();
 
     // Exibe o ícone de sucesso após o download
@@ -286,6 +294,8 @@ function downloadPhoto() {
         document.getElementById("successIcon").style.display = "none";
     }, 1000);
 }
+
+
 
 
 function newPhoto() {
