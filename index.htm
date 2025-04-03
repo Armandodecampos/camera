@@ -8,19 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <style>
-        body{
-            background:#ddd;
-            padding:1%;
+        body {
+            background: #ddd;
+            padding: 1%;
         }
+
         @media (orientation: landscape) {
             body {
-                padding-right:5%;
-                padding-left:5%;
-                background:#ddd;
+                padding-right: 5%;
+                padding-left: 5%;
+                background: #ddd;
             }
         }
+
         .camera-container {
             z-index: 10;
             position: fixed;
@@ -41,7 +42,7 @@
             height: auto;
             object-fit: cover;
             aspect-ratio: 3 / 4;
-            border:2px solid #fff;
+            border: 2px solid #fff;
             max-width: 300px;
             max-height: 400px;
         }
@@ -50,6 +51,7 @@
             display: none;
             z-index: 2;
         }
+
         .btn-container {
             position: fixed;
             bottom: 50px;
@@ -72,23 +74,23 @@
             border-radius: 50%;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
             z-index: 2;
-            border:2px solid #000;
+            border: 2px solid #000;
         }
 
-        .btncamera{
+        .btncamera {
             background: #fff;
-            color:#000;
+            color: #000;
             border: none;
             font-size: 24px;
             cursor: pointer;
-            width:70px;
-            height:70px;
+            width: 70px;
+            height: 70px;
             padding: 20px;
             border-radius: 50%;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
             z-index: 2;
-            border:2px solid #000;
-            font-size:20px;
+            border: 2px solid #000;
+            font-size: 20px;
         }
 
         .grayscale {
@@ -100,6 +102,7 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
+
         #loader {
             position: fixed;
             width: 100%;
@@ -110,6 +113,7 @@
             align-items: center;
             z-index: 1000;
         }
+
         #successIcon {
             display: none;
             position: fixed;
@@ -124,9 +128,16 @@
             z-index: 1000;
             text-align: center;
         }
+
         @keyframes shutterEffect {
-            0% { clip-path: circle(100% at center); opacity: 1; }
-            100% { clip-path: circle(0% at center); opacity: 0; }
+            0% {
+                clip-path: circle(100% at center);
+                opacity: 1;
+            }
+            100% {
+                clip-path: circle(0% at center);
+                opacity: 0;
+            }
         }
 
         #shutterOverlay {
@@ -141,16 +152,18 @@
             z-index: 2000;
             pointer-events: none;
         }
+
         #timerButton {
             position: fixed;
             top: 10px;
-            margin:auto;
-            left:0px;
+            margin: auto;
+            left: 0px;
             right: 0px;
             background: #222;
             color: #fff;
             z-index: 3;
         }
+
         #timerText {
             position: fixed;
             top: 50%;
@@ -169,52 +182,48 @@
 <div id="loader">
     <div class="spinner"></div>
 </div>
-    
-    <div class="camera-container" id="cameraContainer">
+
+<div class="camera-container" id="cameraContainer">
     <button id="timerButton" class="btncamera" style="position: fixed; top: 10px; right: 10px; background: #222; color: #fff;">
         <i id="timerIcon" class="fas fa-clock"></i> <span id="timerText">10s</span>
     </button>
-        <video id="video" autoplay></video>
-        <canvas id="canvas" width="300" height="400"></canvas>
-        <div class="btn-container">
-            <button class="btncamera" style="background:#222;color:#fff;" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-            <button class="btncamera" style="background:#222;color:#fff;" id="cameraSwitchButton" onclick="switchCamera()">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            <button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
-                <i class="fas fa-camera"></i>
-            </button>
-            <button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
-                <i class="fas fa-download"></i>
-            </button>
-            <button class="btncamera" style="background:#222;color:#fff;" id="filterButton" onclick="toggleFilter()">
-                <i class="fas fa-adjust"></i>
-            </button>
-
-        </div>
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="300" height="400"></canvas>
+    <div class="btn-container">
+        <button class="btncamera" style="background:#222;color:#fff;" id="newPhotoButton" onclick="newPhoto()" style="display: none;">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+        <button class="btncamera" style="background:#222;color:#fff;" id="cameraSwitchButton" onclick="debouncedSwitchCamera()">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;" id="captureButton" onclick="takePhoto()">
+            <i class="fas fa-camera"></i>
+        </button>
+        <button class="btncamera" style="background:#fff;color:#000;width:80px;height:80px;font-size:25px;bottom:100px;display: none;" id="downloadButton" onclick="downloadPhoto();">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="btncamera" style="background:#222;color:#fff;" id="filterButton" onclick="toggleFilter()">
+            <i class="fas fa-adjust"></i>
+        </button>
     </div>
-        <div id="successIcon">
-        <i class="fas fa-check-circle"></i>
-    </div>
-    <div id="shutterOverlay"></div>
+</div>
+<div id="successIcon">
+    <i class="fas fa-check-circle"></i>
+</div>
+<div id="shutterOverlay"></div>
 <script>
-    window.addEventListener("load", function() {
+    window.addEventListener("load", function () {
         document.getElementById("loader").style.display = "none";
     });
 
     let video = document.getElementById('video');
     let canvas = document.getElementById('canvas');
     let context = canvas.getContext('2d');
-    let cameraContainer = document.getElementById('cameraContainer');
     let stream = null;
     let facingMode = 'environment';
+    let cameraActive = false; // Adicionado para verificação de estado
 
-    let timerActive = false;
-    let timerInterval;
-
-    document.getElementById('timerButton').addEventListener('click', function() {
+    document.getElementById('timerButton').addEventListener('click', function () {
         let timerText = document.getElementById('timerText');
         let timerIcon = document.getElementById('timerIcon');
 
@@ -246,82 +255,100 @@
             }, 1000);
         }
     });
-    
+
     async function startCamera() {
-    try {
-        const constraints = {
-            video: {
-                facingMode: facingMode,
-                width: { ideal: window.screen.width },
-                height: { ideal: window.screen.height },
-            }
-        };
+        try {
+            const constraints = {
+                video: {
+                    facingMode: facingMode,
+                    width: { ideal: window.screen.width },
+                    height: { ideal: window.screen.height },
+                }
+            };
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
 
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-
-        video.onloadedmetadata = () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-        };
-    } catch (error) {
-        console.error('Erro ao acessar a câmera:', error);
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                cameraActive = true;
+            };
+        } catch (error) {
+            console.error('Erro ao acessar a câmera:', error);
+            cameraActive = false;
+        }
     }
-}
-    
+
     function stopCamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
+            cameraActive = false;
         }
     }
+
+    function switchCamera() {
+        if (!cameraActive) return; // Verifica se a câmera está ativa
+
+        facingMode = facingMode === 'user' ? 'environment' : 'user';
+        stopCamera();
+        startCamera();
+    }
+
+    // Debounce function
+    function debounce(func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    }
+
+    const debouncedSwitchCamera = debounce(switchCamera, 500); // 500ms delay
 
     function takePhoto() {
-    let width = video.videoWidth;
-    let height = video.videoHeight;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+        let targetAspectRatio = 120 / 141;
+        let newWidth, newHeight;
 
-    // Definir a proporção desejada (120:141 ≈ 0.85)
-    let targetAspectRatio = 120 / 141;
-
-    // Calcular novas dimensões de recorte mantendo o centro
-    let newWidth, newHeight;
-    if (width / height > targetAspectRatio) {
-        newHeight = height;
-        newWidth = height * targetAspectRatio;
-    } else {
-        newWidth = width;
-        newHeight = width / targetAspectRatio;
-    }
-
-    let xOffset = (width - newWidth) / 2;
-    let yOffset = (height - newHeight) / 2;
-
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-
-    let shutter = document.getElementById("shutterOverlay");
-    shutter.style.opacity = "1";
-    shutter.style.animation = "shutterEffect 0.3s ease-in-out";
-
-    setTimeout(() => {
-        context.drawImage(video, xOffset, yOffset, newWidth, newHeight, 0, 0, newWidth, newHeight);
-
-        originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-        if (isGrayscale) {
-            applyGrayscale();
+        if (width / height > targetAspectRatio) {
+            newHeight = height;
+            newWidth = height * targetAspectRatio;
+        } else {
+            newWidth = width;
+            newHeight = width / targetAspectRatio;
         }
 
-        canvas.style.display = "block";
-        video.style.display = "none";
-        document.getElementById("captureButton").style.display = "none";
-        document.getElementById("cameraSwitchButton").style.display = "none";
-        document.getElementById("downloadButton").style.display = "inline-block";
-        document.getElementById("newPhotoButton").style.display = "inline-block";
-        document.getElementById("timerButton").style.display = "none";
-        shutter.style.opacity = "0";
-    }, 300);
-}
+        let xOffset = (width - newWidth) / 2;
+        let yOffset = (height - newHeight) / 2;
 
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        let shutter = document.getElementById("shutterOverlay");
+        shutter.style.opacity = "1";
+        shutter.style.animation = "shutterEffect 0.3s ease-in-out";
+
+        setTimeout(() => {
+            context.drawImage(video, xOffset, yOffset, newWidth, newHeight, 0, 0, newWidth, newHeight);
+            originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            if (isGrayscale) {
+                applyGrayscale();
+            }
+
+            canvas.style.display = "block";
+            video.style.display = "none";
+            document.getElementById("captureButton").style.display = "none";
+            document.getElementById("cameraSwitchButton").style.display = "none";
+            document.getElementById("downloadButton").style.display = "inline-block";
+            document.getElementById("newPhotoButton").style.display = "inline-block";
+            document.getElementById("timerButton").style.display = "none";
+            shutter.style.opacity = "0";
+        }, 300);
+    }
 
     function generateRandomFilename() {
         let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -356,18 +383,11 @@
         document.getElementById("timerButton").style.display = "inline-block";
     }
 
-    function switchCamera() {
-        facingMode = facingMode === 'user' ? 'environment' : 'user';
-        stopCamera();
-        startCamera();
-    }
-
     let isGrayscale = false;
     let originalImageData = null;
 
     function toggleFilter() {
         isGrayscale = !isGrayscale;
-
         video.classList.toggle('grayscale', isGrayscale);
 
         if (canvas.style.display === 'block') {
@@ -393,7 +413,7 @@
         context.putImageData(imageData, 0, 0);
     }
 
-    window.onload = function() {
+    window.onload = function () {
         document.getElementById('downloadButton').style.display = 'none';
         document.getElementById('newPhotoButton').style.display = 'none';
         startCamera();
