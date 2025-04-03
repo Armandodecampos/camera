@@ -176,6 +176,23 @@
             text-shadow: 2px 2px 4px black;
             pointer-events: none;
         }
+        
+        .brightness-slider-container {
+            position:fixed;
+        	top:100px;
+        	margin:auto;
+        	right:0;
+        	left:0;
+            width: 150px;
+            z-index: 3;
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .brightness-slider {  
+            width: 150px;
+        }
     </style>
 </head>
 <body>
@@ -184,6 +201,9 @@
 </div>
 
 <div class="camera-container" id="cameraContainer">
+    <div class="brightness-slider-container">
+        <input type="range" min="0" max="2" value="1" step="0.1" class="brightness-slider" id="brightnessSlider">
+    </div>
     <button id="timerButton" class="btncamera" style="position: fixed; top: 10px; right: 10px; background: #222; color: #fff;">
         <i id="timerIcon" class="fas fa-clock"></i> <span id="timerText">10s</span>
     </button>
@@ -265,7 +285,8 @@
                     facingMode: { exact: facingMode },
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    frameRate: { ideal: 30 }
+                    frameRate: { ideal: 30 },
+                    brightness: { ideal: parseFloat(document.getElementById('brightnessSlider').value) }
                 }
             };
             stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -285,7 +306,8 @@
                     video: {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
-                        frameRate: { ideal: 24 }
+                        frameRate: { ideal: 24 },
+                        brightness: { ideal: parseFloat(document.getElementById('brightnessSlider').value) }
                     }
                 };
                 stream = await navigator.mediaDevices.getUserMedia(backupConstraints);
@@ -467,6 +489,14 @@
         document.getElementById('newPhotoButton').style.display = 'none';
         startCamera();
     };
+
+    document.getElementById('brightnessSlider').addEventListener('input', function() {
+      if (stream) {
+          stopCamera();
+          startCamera();
+      }
+    });
+
 </script>
 </body>
 </html>
