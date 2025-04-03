@@ -6,7 +6,7 @@
     <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="icon" type="image/png" href="https://github.com/Armandodecampos/camera/blob/main/favicon.png?raw=true">
+    <link rel="icon" type="image/png" href="https://dl.dropbox.com/scl/fi/3626h5ykjzh2cng20bz9v/favicon.png?rlkey=z6usyt6q154s3g363y8ha72lq&st=7r31tdt2&dl=0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body {
@@ -222,6 +222,8 @@
     let stream = null;
     let facingMode = 'environment';
     let cameraActive = false;
+    let timerActive = false;
+    let timerInterval;
 
     document.getElementById('timerButton').addEventListener('click', function () {
         let timerText = document.getElementById('timerText');
@@ -260,7 +262,7 @@
         try {
             const constraints = {
                 video: {
-                    facingMode: { exact: 'environment' },
+                    facingMode: { exact: facingMode },
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
                     frameRate: { ideal: 30 }
