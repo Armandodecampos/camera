@@ -221,7 +221,7 @@
     let context = canvas.getContext('2d');
     let stream = null;
     let facingMode = 'environment';
-    let cameraActive = false; // Adicionado para verificação de estado
+    let cameraActive = false;
 
     document.getElementById('timerButton').addEventListener('click', function () {
         let timerText = document.getElementById('timerText');
@@ -260,9 +260,9 @@
         try {
             const constraints = {
                 video: {
-                    facingMode: facingMode,
-                    width: { ideal: window.screen.width },
-                    height: { ideal: window.screen.height },
+                    facingMode: { exact: 'environment' },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
                 }
             };
             stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -276,6 +276,23 @@
         } catch (error) {
             console.error('Erro ao acessar a câmera:', error);
             cameraActive = false;
+
+            try {
+                const backupConstraints = {
+                    video: true,
+                };
+                stream = await navigator.mediaDevices.getUserMedia(backupConstraints);
+                video.srcObject = stream;
+
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    cameraActive = true;
+                };
+            } catch (backupError) {
+                console.error('Erro ao acessar a câmera padrão:', backupError);
+                cameraActive = false;
+            }
         }
     }
 
@@ -287,14 +304,12 @@
     }
 
     function switchCamera() {
-        if (!cameraActive) return; // Verifica se a câmera está ativa
-
+        if (!cameraActive) return;
         facingMode = facingMode === 'user' ? 'environment' : 'user';
         stopCamera();
         startCamera();
     }
 
-    // Debounce function
     function debounce(func, delay) {
         let timeoutId;
         return function (...args) {
@@ -305,49 +320,76 @@
         };
     }
 
-    const debouncedSwitchCamera = debounce(switchCamera, 500); // 500ms delay
+    const debouncedSwitchCamera = debounce(switchCamera, 500);
 
-    function takePhoto() {
-        let width = video.videoWidth;
-        let height = video.videoHeight;
-        let targetAspectRatio = 120 / 141;
-        let newWidth, newHeight;
-
-        if (width / height > targetAspectRatio) {
-            newHeight = height;
-            newWidth = height * targetAspectRatio;
-        } else {
-            newWidth = width;
-            newHeight = width / targetAspectRatio;
-        }
-
-        let xOffset = (width - newWidth) / 2;
-        let yOffset = (height - newHeight) / 2;
-
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-
+    async function takePhoto() {
         let shutter = document.getElementById("shutterOverlay");
         shutter.style.opacity = "1";
         shutter.style.animation = "shutterEffect 0.3s ease-in-out";
 
-        setTimeout(() => {
-            context.drawImage(video, xOffset, yOffset, newWidth, newHeight, 0, 0, newWidth, newHeight);
-            originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        setTimeout(async () => {
+            try {
+                if ('ImageCapture' in window && stream) {
+                    const track = stream.getVideoTracks()[0];
+                    const imageCapture = new ImageCapture(track);
+                    const blob = await imageCapture.takePhoto();
+                    const imageUrl = URL.createObjectURL(blob);
 
-            if (isGrayscale) {
-                applyGrayscale();
+                    const img = new Image();
+                    img.onload = () => {
+                        cropAndDraw(img);
+                    };
+                    img.src = imageUrl;
+                } else {
+                    cropAndDraw(video);
+                }
+            } catch (error) {
+                console.error('Erro ao tirar foto:', error);
+                cropAndDraw(video);
             }
-
-            canvas.style.display = "block";
-            video.style.display = "none";
-            document.getElementById("captureButton").style.display = "none";
-            document.getElementById("cameraSwitchButton").style.display = "none";
-            document.getElementById("downloadButton").style.display = "inline-block";
-            document.getElementById("newPhotoButton").style.display = "inline-block";
-            document.getElementById("timerButton").style.display = "none";
-            shutter.style.opacity = "0";
         }, 300);
+    }
+
+    function cropAndDraw(source) {
+        let width = source.videoWidth || source.width;
+        let height = source.videoHeight || source.height;
+        let targetAspectRatio = 120 / 141;
+        let newWidth, newHeight, xOffset, yOffset;
+
+        if (width / height > targetAspectRatio) {
+            newHeight = height;
+            newWidth = height * targetAspectRatio;
+            xOffset = (width - newWidth) / 2;
+            yOffset = 0;
+        } else {
+            newWidth = width;
+            newHeight = width / targetAspectRatio;
+            xOffset = 0;
+            yOffset = (height - newHeight) / 2;
+        }
+
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        context.drawImage(source, xOffset, yOffset, newWidth, newHeight, 0, 0, newWidth, newHeight);
+
+        processCanvas();
+    }
+
+    function processCanvas() {
+        originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (isGrayscale) {
+            applyGrayscale();
+        }
+
+        canvas.style.display = "block";
+        video.style.display = "none";
+        document.getElementById("captureButton").style.display = "none";
+        document.getElementById("cameraSwitchButton").style.display = "none";
+        document.getElementById("downloadButton").style.display = "inline-block";
+        document.getElementById("newPhotoButton").style.display = "inline-block";
+        document.getElementById("timerButton").style.display = "none";
+        document.getElementById("shutterOverlay").style.opacity = "0";
     }
 
     function generateRandomFilename() {
