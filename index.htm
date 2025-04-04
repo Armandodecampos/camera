@@ -2,13 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable-no">
     <title>Câmera com Ajuste de Luminosidade</title>
     <link rel="icon" href="https://archive.org/download/FingerSnapLogo_201602/FingerSnapLogo.jpg">
     <link href="https://fonts.googleapis.com/css?family=Schoolbell&v1" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="icon" type="image/png" href="https://dl.dropbox.com/scl/fi/3626h5ykjzh2cng20bz9v/favicon.png?rlkey=z6usyt6q154s3g363y8ha72lq&st=7r31tdt2&dl=0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable-no">
     <style>
         body {
             background: #ddd;
@@ -61,18 +60,13 @@
             display: flex;
             gap: 10px;
             z-index: 2;
-            flex-direction: column; /* Alterado para row abaixo */
+            flex-direction: row;
             align-items: center;
-        }
-        
-
-        .btn-container {
-            flex-direction: row; /* Botões newphoto e download lado a lado */
         }
 
         .btn-container-cima {
             position: fixed;
-            top: 10px;
+            top: 50px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -81,10 +75,8 @@
         }
 
         .btncamera {
-        	display:none;
             background: #fff;
             color: #000;
-            border: none;
             font-size: 24px;
             cursor: pointer;
             width: 80px;
@@ -99,10 +91,10 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .btncamera-capture{
-        	display:none;
-        	background: #fff;
+            display:none;
+            background: #fff;
             color: #000;
             border: none;
             font-size: 24px;
@@ -119,9 +111,9 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .btncamera-delete{
-        	background: #f55;
+            background: #f55;
             color: #000;
             border: none;
             font-size: 24px;
@@ -138,9 +130,9 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .btncamera-download{
-        	background: #55f;
+            background: #55f;
             color: #000;
             border: none;
             font-size: 24px;
@@ -179,20 +171,21 @@
             z-index: 1000;
         }
 
-        #successIcon {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 100px;
-            color: #28a745;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 50%;
-            z-index: 1000;
-            text-align: center;
-        }
+#successIcon {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 150px;
+    color: #fff;
+    padding: 20px;
+    border-radius: 50%;
+    z-index: 1000;
+    text-align: center;
+    text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5); /* Adiciona sombra ao ícone */
+}
+
 
         @keyframes shutterEffect {
             0% {
@@ -247,100 +240,6 @@
             pointer-events: none;
         }
 
-        .brightness-slider-container {
-            position: fixed;
-            top: 100px;
-            left: 50%; /* Centraliza horizontalmente */
-            transform: translateX(-50%); /* Ajusta o posicionamento */
-            display: flex;
-            flex-direction: column;  /* Coloca os elementos em coluna */
-            align-items: center;    /* Centraliza os itens horizontalmente */
-            z-index: 3;
-            width: fit-content; /* Ajusta a largura ao conteúdo */
-            display:none;
-        }
-
-        .brightness-icon {
-            color: #fff;
-            margin: 5px 10px;
-            font-size: 20px;
-        }
-
-        .brightness-label {
-            color: #fff;
-            margin-bottom: 5px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .brightness-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 150px; /* Largura do slider */
-            height: 6px;
-            background: #ccc;
-            border: none;
-            outline: none;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            z-index: 2;
-            border: 2px solid #000;
-            border-radius: 50px;
-        }
-
-        .brightness-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 36px;
-            height: 36px;
-            background: #fff;
-            border: 2px solid #000;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .brightness-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border: 2px solid #000;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        input[type="range"][value="0"]::-webkit-slider-thumb {
-            background: #000;
-        }
-
-        input[type="range"][value="0"]::-moz-range-thumb {
-            background: #000;
-        }
-
-        input[type="range"][value="2"]::-webkit-slider-thumb {
-            background: #fff;
-            border-color: #ccc;
-        }
-
-        input[type="range"][value="2"]::-moz-range-thumb {
-            background: #fff;
-            border-color: #ccc;
-        }
-
-        input[type="range"][value="0"] {
-            background: #000;
-        }
-
-        input[type="range"][value="2"] {
-            background: #fff;
-        }
-
-        input[type="range"] {
-            background: linear-gradient(to right, black 0%, gray 50%, white 100%);
-        }
-
-        #filterButton {
-            display: none;
-        }
-
     </style>
 </head>
 <body>
@@ -349,14 +248,6 @@
 </div>
 
 <div class="camera-container" id="cameraContainer">
-    <div class="brightness-slider-container" id="brightnessSliderContainer">
-        <span  class="brightness-label">CLARIDADE</span>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-minus brightness-icon"></i>
-            <input type="range" min="0" max="2" value="1" step="0.01" class="brightness-slider" id="brightnessSlider">
-            <i class="fas fa-plus brightness-icon"></i>
-        </div>
-    </div>
     <span id="timerText">10s</span>
     <div class="btn-container-cima">
     <button id="timerButton" class="btncamera">
@@ -400,13 +291,9 @@
     let cameraActive = false;
     let timerActive = false;
     let timerInterval;
-    let brightnessLevel = 1;
     let isGrayscale = false;
-    let previousBrightnessLevel = 1;
-    const brightnessSliderContainer = document.getElementById('brightnessSliderContainer');
     let capturedImage = null;
     let originalImageData = null;
-    let filterActiveOnCapture = false;
     const filterButton = document.getElementById('filterButton');
 
 
@@ -468,7 +355,7 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 cameraActive = true;
-                applyFilters();
+                applyFilters(); // Aplica os filtros iniciais ao iniciar a câmera
             };
         } catch (error) {
             console.error('Erro ao acessar a câmera:', error);
@@ -489,7 +376,7 @@
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     cameraActive = true;
-                    applyFilters();
+                    applyFilters(); // Aplica os filtros iniciais ao iniciar a câmera de backup
                 };
             } catch (backupError) {
                 console.error('Erro ao acessar a câmera padrão:', backupError);
@@ -526,9 +413,7 @@
 
     async function takePhoto() {
         let shutter = document.getElementById("shutterOverlay");
-        shutter.style.opacity = "1";
         shutter.style.animation = "shutterEffect 0.3s ease-in-out";
-        filterActiveOnCapture = isGrayscale;
 
         setTimeout(async () => {
             try {
@@ -574,7 +459,6 @@
         canvas.width = newWidth;
         canvas.height = newHeight;
         context.drawImage(source, xOffset, yOffset, newWidth, newHeight, 0, 0, newWidth, newHeight);
-        applyBrightness();
         processCanvas();
     }
 
@@ -586,8 +470,8 @@
         document.getElementById("downloadButton").style.display = "inline-block";
         document.getElementById("newPhotoButton").style.display = "inline-block";
         document.getElementById("timerButton").style.display = "none";
+        document.getElementById("shutterOverlay").style.animation = 'none'; // Remove a animação para permitir nova execução
         document.getElementById("shutterOverlay").style.opacity = "0";
-        brightnessSliderContainer.style.display = "flex";
         originalImageData = context.getImageData(0, 0, canvas.width, canvas.height);
         filterButton.style.display = "inline-block";
         applyFiltersToCanvas();
@@ -624,11 +508,9 @@
         document.getElementById('cameraSwitchButton').style.display = 'inline-block';
         document.getElementById('captureButton').style.display = 'inline-block';
         document.getElementById("timerButton").style.display = "inline-block";
-        brightnessLevel = 1;
         isGrayscale = false;
-        document.getElementById('brightnessSlider').value = 1;
-        brightnessSliderContainer.style.display = "none";
         filterButton.style.display = "none";
+        applyFilters(); // Garante que o filtro seja removido ao iniciar a câmera novamente
         startCamera();
     }
 
@@ -639,11 +521,7 @@
 
     function applyFilters() {
         if (cameraActive) {
-            if (isGrayscale) {
-                video.classList.add('grayscale');
-            } else {
-                video.classList.remove('grayscale');
-            }
+            video.classList.toggle('grayscale', isGrayscale);
         }
         if (canvas.style.display === "block") {
             applyFiltersToCanvas();
@@ -665,59 +543,13 @@
         }
     }
 
-
-    function applyBrightness() {
-        let tempCanvas = document.createElement('canvas');
-        let tempContext = tempCanvas.getContext('2d');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-
-        tempContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-
-        let imageData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-        let data = imageData.data;
-
-        const delta = brightnessLevel - previousBrightnessLevel;
-        const sensitivity = 0.1;
-
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.max(0, Math.min(255, data[i] + delta * sensitivity * 255));
-            data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + delta * sensitivity * 255));
-            data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + delta * sensitivity * 255));
-        }
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(imageData, 0, 0);
-
-        if (isGrayscale) {
-            applyGrayscaleFilter();
-        }
-        previousBrightnessLevel = brightnessLevel;
-    }
-
-    function applyGrayscaleFilter() {
-        let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imageData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = data[i + 1] = data[i + 2] = avg;
-        }
-
-        context.putImageData(imageData, 0, 0);
-    }
-
     window.onload = function () {
         document.getElementById('downloadButton').style.display = 'none';
         document.getElementById('newPhotoButton').style.display = 'none';
         document.getElementById('filterButton').style.display = 'none';
         startCamera();
     };
-
-    document.getElementById('brightnessSlider').addEventListener('input', function () {
-        brightnessLevel = parseFloat(this.value);
-        applyBrightness();
-    });
 </script>
 </body>
 </html>
+        
