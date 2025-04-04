@@ -171,21 +171,20 @@
             z-index: 1000;
         }
 
-#successIcon {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 150px;
-    color: #fff;
-    padding: 20px;
-    border-radius: 50%;
-    z-index: 1000;
-    text-align: center;
-    text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5); /* Adiciona sombra ao ícone */
-}
-
+        #successIcon {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: #fff;
+            padding: 20px;
+            border-radius: 50%;
+            z-index: 1000;
+            text-align: center;
+            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5); /* Adiciona sombra ao ícone */
+        }
 
         @keyframes shutterEffect {
             0% {
@@ -250,15 +249,15 @@
 <div class="camera-container" id="cameraContainer">
     <span id="timerText">10s</span>
     <div class="btn-container-cima">
-    <button id="timerButton" class="btncamera">
-        <i id="timerIcon" class="fas fa-clock"></i>
-    </button>
-    <button class="btncamera"  id="cameraSwitchButton" onclick="debouncedSwitchCamera()">
-        <i class="fas fa-sync-alt"></i>
-    </button>
-    <button class="btncamera" id="filterButton" onclick="toggleFilter()">
-        <i class="fas fa-adjust"></i>
-    </button>
+        <button id="timerButton" class="btncamera">
+            <i id="timerIcon" class="fas fa-clock"></i>
+        </button>
+        <button class="btncamera"  id="cameraSwitchButton" onclick="debouncedSwitchCamera()">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="btncamera" id="filterButton" onclick="toggleFilter()">
+            <i class="fas fa-adjust"></i>
+        </button>
     </div>
     <video id="video" autoplay></video>
     <canvas id="canvas" width="300" height="400"></canvas>
@@ -295,6 +294,7 @@
     let capturedImage = null;
     let originalImageData = null;
     const filterButton = document.getElementById('filterButton');
+    let isSwitchingCamera = false; // Variável para controlar se a troca de câmera está em andamento
 
 
     document.getElementById('timerButton').addEventListener('click', function () {
@@ -341,13 +341,15 @@
     async function startCamera() {
         try {
             const constraints = {
-                video: {
-                    facingMode: { exact: facingMode },
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    frameRate: { ideal: 30 },
-                }
-            };
+    video: {
+        facingMode: { exact: facingMode },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        frameRate: { ideal: 30 },
+        focusMode: { ideal: 'continuous' }, // Tenta manter o foco contínuo
+        exposureMode: { ideal: 'auto' },   // Tenta usar o modo de exposição automático
+    }
+};
             stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
 
@@ -355,11 +357,13 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 cameraActive = true;
-                applyFilters(); // Aplica os filtros iniciais ao iniciar a câmera
+                applyFilters();
+                isSwitchingCamera = false; // Permite novas trocas após o sucesso
             };
         } catch (error) {
             console.error('Erro ao acessar a câmera:', error);
             cameraActive = false;
+            isSwitchingCamera = false; // Permite novas trocas mesmo em caso de erro
 
             try {
                 const backupConstraints = {
@@ -376,11 +380,13 @@
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     cameraActive = true;
-                    applyFilters(); // Aplica os filtros iniciais ao iniciar a câmera de backup
+                    applyFilters();
+                    isSwitchingCamera = false; // Permite novas trocas após o sucesso do backup
                 };
             } catch (backupError) {
                 console.error('Erro ao acessar a câmera padrão:', backupError);
                 cameraActive = false;
+                isSwitchingCamera = false; // Permite novas trocas mesmo em caso de erro de backup
             }
         }
     }
@@ -388,15 +394,23 @@
     function stopCamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
+            video.srcObject = null; // Limpar a referência do objeto de vídeo
             cameraActive = false;
         }
     }
 
-    function switchCamera() {
-        if (!cameraActive) return;
-        facingMode = facingMode === 'user' ? 'environment' : 'user';
+    async function switchCamera() {
+        if (isSwitchingCamera) {
+            console.warn("Troca de câmera já está em andamento.");
+            return;
+        }
+
+        isSwitchingCamera = true;
         stopCamera();
-        startCamera();
+        facingMode = facingMode === 'user' ? 'environment' : 'user';
+
+        // Adiciona um pequeno delay antes de iniciar a nova câmera
+        setTimeout(startCamera, 100); // Experimente diferentes valores para o delay
     }
 
     function debounce(func, delay) {
@@ -410,6 +424,22 @@
     }
 
     const debouncedSwitchCamera = debounce(switchCamera, 500);
+
+    function resetCamera() {
+        console.log("Tentando resetar a câmera...");
+        stopCamera();
+        setTimeout(startCamera, 500); // Espera um pouco antes de tentar iniciar novamente
+    }
+
+    // Adicione um listener de erro ao elemento de vídeo
+    video.addEventListener('error', (event) => {
+        console.error('Erro no elemento de vídeo:', event);
+        // Verifica se a câmera ainda está ativa (para evitar loops de reset)
+        if (cameraActive || isSwitchingCamera) {
+            console.log("Erro detectado, tentando resetar a câmera.");
+            resetCamera();
+        }
+    });
 
     async function takePhoto() {
         let shutter = document.getElementById("shutterOverlay");
@@ -549,19 +579,18 @@
         document.getElementById('filterButton').style.display = 'none';
         startCamera();
     };
-    
+
     if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('Service Worker registrado com sucesso:', registration);
-            })
-            .catch(error => {
-                console.log('Erro ao registrar o Service Worker:', error);
-            });
-    });
-}
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registrado com sucesso:', registration);
+                })
+                .catch(error => {
+                    console.log('Erro ao registrar o Service Worker:', error);
+                });
+        });
+    }
 </script>
 </body>
 </html>
-        
